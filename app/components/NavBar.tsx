@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { Button } from "./ui/button";
+import { Button, buttonVariants } from "./ui/button";
 import { ArrowRight, Loader2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useClerk } from "@clerk/nextjs";
@@ -22,13 +22,12 @@ const NavBar = () => {
         }
       } catch (error) {
         console.error("Error checking user status:", error);
-        // Retry logic
         if (retryCount < 3) {
           setTimeout(() => {
             setRetryCount(retryCount + 1);
-          }, 3000); // Retry after 3 seconds
+          }, 3000); 
         } else {
-          setIsLoading(false); // Stop retrying after 3 attempts
+          setIsLoading(false); 
         }
       } finally {
         setIsLoading(false);
@@ -36,7 +35,14 @@ const NavBar = () => {
     };
 
     checkUserStatus();
-  }, [retryCount]); // Retry whenever retryCount changes
+  }, [retryCount]); 
+
+  const handleSignOut = () => {
+    signOut(() => {
+      setIsLogin(false);
+      router.push("/");
+    });
+  };
 
   return (
     <nav className="top-0 px-20 py-2 sticky flex w-full items-center justify-between bg-white">
@@ -49,17 +55,37 @@ const NavBar = () => {
         ) : (
           <>
             {isLogin ? (
-              <Button onClick={() => signOut(() => router.push("sign-in"))}>
+              <button
+                className={
+                  buttonVariants({
+                    variant: "default",
+                    size: "sm",
+                    className: "cursor-pointer",
+                  })
+                }
+                onClick={handleSignOut}
+              >
                 Sign Out
-              </Button>
+              </button>
             ) : (
               <>
-                <Button>
-                  <Link href="/sign-in">Sign In</Link>
-                </Button>
-                <Button>
+                  <Link className={
+                    buttonVariants({
+                      variant: "default",
+                      size: "sm",
+                    })
+                  } href="/sign-in">Sign In</Link>
+                <Link
+                className={
+                  buttonVariants({
+                    variant: "default",
+                    size: "sm",
+                  })
+                }
+                href="/sign-up"
+                >
                   Get Started <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
+                </Link>
               </>
             )}
           </>

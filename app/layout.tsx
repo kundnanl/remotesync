@@ -25,7 +25,7 @@ export default function RootLayout({
         "grainy",
         inter.className
       )}
-      ><NavBar />
+      >
         {children}
         </body>
     </html>

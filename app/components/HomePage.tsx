@@ -1,13 +1,11 @@
-"use client";
+"use client"
 import { ArrowRight, Loader2 } from "lucide-react";
-import { Button } from "./ui/button";
+import { Button, buttonVariants } from "./ui/button";
 import { useRouter } from "next/navigation";
-import { useUser } from "@clerk/nextjs";
 import { useState, useEffect } from "react";
+import Link from "next/link";
 
 const HomePage = () => {
-  const router = useRouter();
-
   const [isLogin, setIsLogin] = useState(false);
   const [retryCount, setRetryCount] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
@@ -36,10 +34,6 @@ const HomePage = () => {
     checkUserStatus();
   }, [retryCount]);
 
-  const handleGetStartedClick = () => {
-    router.push("/sign-up");
-  };
-
   return (
     <div className="flex flex-col items-center justify-center">
       <div className="flex flex-col items-center justify-center">
@@ -64,20 +58,33 @@ const HomePage = () => {
       ) : (
         <>
           {!isLogin ? (
-            <Button className="mt-4 rounded-lg" onClick={handleGetStartedClick}>
-              Get Started
-              <ArrowRight className="w-5 h-5 ml-2" />
-            </Button>
+            <Link
+            className={
+              buttonVariants({
+                variant: "default",
+                size: "default",
+                className: "mt-4 rounded-lg"
+              })
+            }
+            href="/sign-up"
+            >
+            Get Started
+            <ArrowRight className="w-5 h-5 ml-2" />
+            </Link>
           ) : (
-            <Button
-              className="mt-4 rounded-lg"
-              onClick={() => {
-                router.push("/dashboard");
-              }}
+            <Link 
+            className={
+              buttonVariants({
+                variant: "default",
+                size: "default",
+                className: "mt-4 rounded-lg"
+              })
+            }
+            href="/dashboard"
             >
               Go to DashBoard
               <ArrowRight className="w-5 h-5 ml-2" />
-            </Button>
+            </Link>
           )}{" "}
         </>
       )}
