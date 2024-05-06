@@ -1,12 +1,12 @@
 "use client";
 import Link from "next/link";
-import { buttonVariants } from "./ui/button";
+import { buttonVariants } from "../ui/button";
 import { ArrowRight, Loader2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useClerk } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 
-const NavBar = () => {
+const NavBar = (props) => {
   const { signOut } = useClerk();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);

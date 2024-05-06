@@ -8,6 +8,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
+import { FileUpload } from "../file-upload";
 
 const formSchema = z.object({
   name: z.string().min(1, { message: "Organization name is required." }),
@@ -28,7 +29,7 @@ const CreateOrganizationModal = ({ isOpen, onClose }: { isOpen: boolean; onClose
   }
   , []);
 
-  const form = useForm<{ name: string; description?: string; imageUrl?: string; userId: string }>({
+  const form = useForm<{ name: string; description?: string; imageUrl: string; userId: string }>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
@@ -38,7 +39,7 @@ const CreateOrganizationModal = ({ isOpen, onClose }: { isOpen: boolean; onClose
     },
   });
 
-  const onSubmit: SubmitHandler<{ name: string; description?: string; imageUrl?: string; userId: string }> = async (values) => {
+  const onSubmit: SubmitHandler<{ name: string; description?: string; imageUrl: string; userId: string }> = async (values) => {
     try {
       const { name, description, imageUrl } = values;
 
@@ -103,25 +104,23 @@ const CreateOrganizationModal = ({ isOpen, onClose }: { isOpen: boolean; onClose
                   </FormItem>
                 )}
               />
-              <FormField
-                control={form.control}
-                name="imageUrl"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="uppercase text-xs font-bold text-zinc-500 dark:text-secondary/70">
-                      Image URL
-                    </FormLabel>
-                    <FormControl>
-                      <Input
-                        className="bg-zinc-300/50 border-0 focus-visible:ring-0 text-black focus-visible:ring-offset-0"
-                        placeholder="Enter organization image URL"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <div className="flex items-center justify-center text-center">
+                <FormField
+                  control={form.control}
+                  name="imageUrl"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <FileUpload
+                          endpoint="serverImage"
+                          value={field.value}
+                          onChange={field.onChange}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+              </div>
             </div>
             <DialogFooter className="bg-gray-100 px-6 py-4">
               <Button type="submit" variant="default">

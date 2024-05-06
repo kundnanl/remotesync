@@ -1,6 +1,6 @@
-import HomePage from "@/app/components/HomePage";
-import NavBar from "@/app/components/NavBar";
+import NavBar from "@/app/components/pages/NavBar";
 import MaxWidthWrapper from "@/app/components/ui/MaxWidthWrapper";
+import HomePage from "./components/pages/HomePage";
 
 const RootPage = () => {
   

@@ -1,5 +1,5 @@
-import DashboardPage from "@/app/components/DashboardPage";
-import NavBar from "@/app/components/NavBar";
+import DashboardPage from "@/app/components/pages/DashboardPage";
+import NavBar from "@/app/components/pages/NavBar";
 
 const Dashboard = () => {
 

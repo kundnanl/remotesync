@@ -1,6 +1,6 @@
 "use client"
 import { ArrowRight, Loader2 } from "lucide-react";
-import { Button, buttonVariants } from "./ui/button";
+import { Button, buttonVariants } from "../ui/button";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import Link from "next/link";

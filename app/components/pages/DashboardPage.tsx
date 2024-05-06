@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { Profile } from "@prisma/client";
 import { Button } from "@/components/ui/button";
-import CreateOrganizationModal from "./modals/create-organization-modal";
+import CreateOrganizationModal from "../modals/create-organization-modal";
 import router from "next/router";
 
 const DashboardPage = () => {
