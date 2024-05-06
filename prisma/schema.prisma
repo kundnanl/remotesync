@@ -3,8 +3,8 @@ generator client {
 }
 
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model Profile {
@@ -14,6 +14,42 @@ model Profile {
   imageUrl String @db.Text
   email    String @db.Text
 
+  organization Organization[]
+
+  createdAt           DateTime              @default(now())
+  updatedAt           DateTime              @updatedAt
+  ProfileOrganization ProfileOrganization[]
+}
+
+model Organization {
+  id          String  @id @default(uuid())
+  name        String
+  description String?
+  imageUrl    String  @db.Text
+  createdBy   String
+
+  employees           Profile[]
+  createdAt           DateTime              @default(now())
+  updatedAt           DateTime              @updatedAt
+  ProfileOrganization ProfileOrganization[]
+}
+
+model ProfileOrganization {
+  profileId      String
+  organizationId String
+  role           Role
+
+  profile      Profile      @relation(fields: [profileId], references: [id])
+  organization Organization @relation(fields: [organizationId], references: [id])
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@id([profileId, organizationId])
+}
+
+enum Role {
+  ADMIN
+  MODERATOR
+  MEMBER
 }

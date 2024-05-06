@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { Button, buttonVariants } from "./ui/button";
+import { buttonVariants } from "./ui/button";
 import { ArrowRight, Loader2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useClerk } from "@clerk/nextjs";
@@ -14,29 +14,29 @@ const NavBar = () => {
   const [retryCount, setRetryCount] = useState(0);
 
   useEffect(() => {
-    const checkUserStatus = async () => {
-      try {
-        const res = await fetch("/api/getUser");
-        if (res.status === 200) {
-          setIsLogin(true);
-        }
-      } catch (error) {
-        console.error("Error checking user status:", error);
-        if (retryCount < 3) {
-          setTimeout(() => {
-            setRetryCount(retryCount + 1);
-          }, 3000); 
-        } else {
-          setIsLoading(false); 
-        }
-      } finally {
-        setIsLoading(false);
+    fetch("/api/getUser")
+    .then((res) => {
+      if (res.status === 401) {
+        setIsLogin(false);
       }
-    };
-
-    checkUserStatus();
-  }, [retryCount]); 
-
+      return res.json();
+    })
+    .then(() => {
+      setIsLogin(true);
+    })
+    .catch((error) => {
+      console.error("Error getting user profile:", error);
+      if (retryCount < 3) {
+        setRetryCount(retryCount + 1);
+      } else {
+        setIsLogin(false);
+      }
+    })
+    .finally(() => {
+      setIsLoading(false);
+    });
+  }, [retryCount]);
+  
   const handleSignOut = () => {
     signOut(() => {
       setIsLogin(false);

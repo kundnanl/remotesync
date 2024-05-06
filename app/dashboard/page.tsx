@@ -1,10 +1,14 @@
-import Dashboard from "../components/Dashboard";
+import DashboardPage from "@/app/components/DashboardPage";
+import NavBar from "@/app/components/NavBar";
 
-const Dashbaord = () => {
+const Dashboard = () => {
 
     return ( 
-        <Dashboard />
+        <>
+        <NavBar />
+        <DashboardPage />
+        </>
      );
 }
  
-export default Dashbaord;
+export default Dashboard;

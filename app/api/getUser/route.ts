@@ -4,13 +4,13 @@ import { NextResponse } from "next/server";
 export async function GET(
 ) {
     try {
-    const user = await auth();
-        console.log(`User found: ${user}`)
-    if (user.userId === null) {
+    const { userId } = await auth();
+        console.log(`User found: ${userId}`)
+    if (userId === null) {
         return new NextResponse("Unauthorized", { status: 401 });
     }
 
-    return NextResponse.json(user);
+    return NextResponse.json(userId);
     
     } catch (error) {
         console.log(`User not found: ${error}`)
