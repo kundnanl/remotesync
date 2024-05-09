@@ -1,4 +1,4 @@
-import { use, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -6,7 +6,6 @@ import { SubmitHandler, useForm } from "react-hook-form";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
-import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { FileUpload } from "../file-upload";
 
@@ -16,8 +15,7 @@ const formSchema = z.object({
   imageUrl: z.string().optional(),
 });
 
-const CreateOrganizationModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) => {
-  const router = useRouter();
+const CreateOrganizationModal = ({ isOpen, onClose, onOrganizationCreated }: { isOpen: boolean; onClose: () => void; onOrganizationCreated: () => void }) => {
   const [userId, setUserId] = useState("")
 
   useEffect(() => {
@@ -47,7 +45,7 @@ const CreateOrganizationModal = ({ isOpen, onClose }: { isOpen: boolean; onClose
 
       await axios.post("/api/createOrganization", { name, description, imageUrl, userId });
       onClose();
-      router.refresh();
+      onOrganizationCreated();
     } catch (error) {
       console.error("Error creating organization:", error);
     }
