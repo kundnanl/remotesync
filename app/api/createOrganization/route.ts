@@ -1,5 +1,6 @@
 import { db } from "@/lib/db";
 import { NextResponse } from "next/server";
+import { v4 as uuidv4 } from "uuid";
 
 export async function POST(req: Request) {
   if (req.method !== "POST") {
@@ -14,6 +15,7 @@ export async function POST(req: Request) {
         name,
         description,
         imageUrl,
+        invitationCode: uuidv4(),
         createdBy: userId, 
         employees: {
           connect: {

@@ -1,21 +1,29 @@
-"use client";
-// DashboardPage.jsx
+"use client"
 import { useEffect, useState } from "react";
-import { Profile, Organization } from "@prisma/client";
+import { Profile, Organization, ProfileOrganization } from "@prisma/client";
 import { Button } from "@/components/ui/button";
 import CreateOrganizationModal from "../modals/create-organization-modal";
 import router from "next/router";
 import Link from "next/link";
-import { Ghost, Loader2, MessageSquare, Plus, Trash } from "lucide-react";
+import { Crown, Ghost, Loader2, Plus, Trash, Users } from "lucide-react";
 import { format } from "date-fns";
+import { InviteOrganizationModal } from "../modals/InviteOrganizationModal";
+import { useModal } from "@/hooks/use-modal-store";
 
 const DashboardPage = () => {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [isCreateOrganizationModalOpen, setCreateOrganizationModalOpen] =
     useState(false);
   const [organizations, setOrganizations] = useState<Organization[]>([]);
+  const [profileOrganization, setProfileOrganization] = useState<
+    ProfileOrganization[]
+  >([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [isDeletingOrganization, setIsDeletingOrganization] = useState(false);
+  const [isDeletingOrganization, setIsDeletingOrganization] = useState<
+    Record<string, boolean>
+  >({});
+  const [selectedOrganizationId, setSelectedOrganizationId] = useState("");
+  const { onOpen } = useModal();
 
   useEffect(() => {
     fetch("/api/getUserProfile")
@@ -55,7 +63,9 @@ const DashboardPage = () => {
         return res.json();
       })
       .then((data) => {
-        setOrganizations(data);
+        const { organization, profileOrganization } = data;
+        setOrganizations(organization);
+        setProfileOrganization(profileOrganization);
       })
       .catch((error) => {
         console.error("Error getting organization data:", error);
@@ -75,8 +85,13 @@ const DashboardPage = () => {
     }
   };
 
+  const openInviteModal = (organizationId: string) => {
+    setSelectedOrganizationId(organizationId);
+    onOpen("inviteOrganization");
+  };
+
   const deleteOrganization = (organizationId: string) => {
-    setIsDeletingOrganization(true);
+    setIsDeletingOrganization((prev) => ({ ...prev, [organizationId]: true }));
     fetch("/api/deleteOrganization", {
       method: "POST",
       headers: {
@@ -100,15 +115,18 @@ const DashboardPage = () => {
         console.error("Error deleting organization:", error);
       })
       .finally(() => {
+        setIsDeletingOrganization((prev) => ({
+          ...prev,
+          [organizationId]: false,
+        }));
         handleOrganizationUpdated();
-        setIsDeletingOrganization(false);
       });
   };
 
   return (
     <>
       <main className="mx-auto max-w-7xl md:p-10">
-        <div className="mt-8 flex flex-col gap-4 sm:flex sm:!flex-row sm:items-center sm:gap-0 items-start justify-between border-b border-gray-200 pb-5">
+        <div className="flex flex-col gap-4 sm:flex sm:!flex-row sm:!items-center sm:!gap-0 items-start justify-between border-b border-gray-200 pb-5">
           <h1 className="mb-3 font-bold text-5xl text-gray-900">
             Organizations
           </h1>
@@ -123,68 +141,91 @@ const DashboardPage = () => {
         </div>
 
         {organizations && organizations?.length !== 0 ? (
-          <ul className="mt-8 grid grid-cols-1 gap-6 divide-y divide-zinc-200 md:grid-cols-2 lg:grid-cols-3">
+          <ul className="mt-8 grid grid-cols-1 gap-4 divide-y divide-zinc-200 md:grid-cols-2 lg:grid-cols-3">
             {organizations
               .sort(
                 (a, b) =>
                   new Date(b.createdAt).getTime() -
                   new Date(a.createdAt).getTime()
               )
-              .map((organization) => (
-                <li
-                  key={organization.id}
-                  className="col-span-1 divide-y divide-gray-200 rounded-lg bg-white shadow transition hover:shadow-lg"
-                >
-                  <Link
-                    href={`/dashboard/${organization.id}`}
-                    className="flex flex-col gap-2"
+              .map((organization) => {
+                const isAdmin = profileOrganization.some(
+                  (profileOrg) =>
+                    profileOrg.organizationId === organization.id &&
+                    profileOrg.role === "ADMIN"
+                );
+                return (
+                  <li
+                    key={organization.id}
+                    className="col-span-1 divide-y divide-gray-200 rounded-lg bg-white shadow transition hover:shadow-lg"
                   >
-                    <div className="flex flex-col ">
-                      <div className="pt-6 px-6 flex w-full items-center justify-between space-x-6">
-                        <div className="h-10 w-10 flex-shrink-0 rounded-full">
-                          <img
-                            src={organization.imageUrl}
-                            alt={organization.name}
-                            className="h-10 w-10 rounded-full object-cover"
-                          />
-                        </div>
-                        <div className="flex-1 truncate">
-                          <div className="flex items-center space-x-3">
-                            <h3 className="truncate text-lg font-medium text-zinc-900">
-                              {organization.name}
-                            </h3>
+                    <Link
+                      href={`/dashboard/${organization.id}`}
+                      className="flex flex-col gap-2"
+                    >
+                      <div className="flex flex-col ">
+                        <div className="pt-6 px-6 flex w-full items-center justify-between space-x-6">
+                          <div className="relative h-10 w-10 flex-shrink-0 rounded-full">
+                            <img
+                              src={organization.imageUrl}
+                              alt={organization.name}
+                              className="h-10 w-10 rounded-full object-cover"
+                            />
+                            {isAdmin ? (
+                              <div className="absolute -top-1 -right-1 z-10">
+                                <Crown className="w-4 h-4 text-yellow-600 fill-yellow-600" />
+                              </div>
+                            ) : (
+                              <div className="absolute -top-1 -right-1 z-10">
+                                <Users className="w-4 h-4 text-gray-600 fill-gray-600" />
+                              </div>
+                            )}
+                          </div>
+                          <div className="flex-1 truncate">
+                            <div className="flex items-center space-x-3">
+                              <h3 className="truncate text-lg font-medium text-zinc-900">
+                                {organization.name}
+                              </h3>
+                            </div>
                           </div>
                         </div>
+                        <div>
+                          <p className="px-6 py-4 text-sm text-zinc-500">
+                            {organization.description}
+                          </p>
+                        </div>
                       </div>
-                      <div>
-                        <p className="px-6 py-4 text-sm text-zinc-500">
-                          {organization.description}
-                        </p>
-                      </div>
-                    </div>
-                  </Link>
+                    </Link>
 
-                  <div className="px-6 grid grid-cols-3 place-items-center py-2 gap-6 text-xs text-zinc-500">
-                    <div className="flex items-center gap-2">
-                      <Plus className="h-4 w-4" />
+                    <div className="px-6 grid grid-cols-3 place-items-center py-2 gap-6 text-xs text-zinc-500">
+                      <Button
+                        onClick={() => openInviteModal(organization.id)}
+                        size="sm"
+                        className="w-full"
+                        variant="default"
+                      >
+                        <Plus className="h-4 w-4 mr-2" />
+                        Invite
+                      </Button>
+
                       {format(new Date(organization.createdAt), "dd MMM yyyy")}
-                    </div>
 
-                    <Button
-                      onClick={() => deleteOrganization(organization.id)}
-                      size="sm"
-                      className="w-full"
-                      variant="destructive"
-                    >
-                      {isDeletingOrganization ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                      ) : (
-                        <Trash className="h-4 w-4" />
-                      )}
-                    </Button>
-                  </div>
-                </li>
-              ))}
+                      <Button
+                        onClick={() => deleteOrganization(organization.id)}
+                        size="sm"
+                        className="w-full"
+                        variant="destructive"
+                      >
+                        {isDeletingOrganization[organization.id] ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <Trash className="h-4 w-4" />
+                        )}
+                      </Button>
+                    </div>
+                  </li>
+                );
+              })}
           </ul>
         ) : isLoading ? (
           <Loader2 height={100} className="my-2 ml-4 animate-spin" />
@@ -196,6 +237,7 @@ const DashboardPage = () => {
           </div>
         )}
       </main>
+      <InviteOrganizationModal organizationId={selectedOrganizationId} />
       <CreateOrganizationModal
         isOpen={isCreateOrganizationModalOpen}
         onClose={() => setCreateOrganizationModalOpen(false)}

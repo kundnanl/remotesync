@@ -19,7 +19,19 @@ export async function POST(req: Request) {
         }
     })
 
-    return NextResponse.json(organization);
+    const profileOrganization = await db.profileOrganization.findMany({
+        where: {
+          profile: {
+            userId
+          }
+        }
+    })
+
+
+    console.log("Organization:", organization);
+    console.log("Profile Organization:", profileOrganization);
+
+    return NextResponse.json({ organization, profileOrganization });
   } catch (error) {
     console.error("Error creating organization:", error);
     return new NextResponse("Internal Error", { status: 500 });

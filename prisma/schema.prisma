@@ -22,11 +22,12 @@ model Profile {
 }
 
 model Organization {
-  id          String  @id @default(uuid())
-  name        String
-  description String?
-  imageUrl    String  @db.Text
-  createdBy   String
+  id              String  @id @default(uuid())
+  name            String
+  description     String?
+  imageUrl        String  @db.Text
+  createdBy       String
+  invitationCode  String @unique
 
   employees           Profile[]
   createdAt           DateTime              @default(now())
